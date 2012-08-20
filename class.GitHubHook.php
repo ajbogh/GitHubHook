@@ -1,5 +1,6 @@
 <?php
-error_reporting(0);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 /**
  * GitHub Post-Receive Deployment Hook.
@@ -40,7 +41,7 @@ class GitHubHook
    * @var array GitHub's IP addresses for hooks.
    * @since 1.1
    */
-  private $_ips = array('207.97.227.253', '50.57.128.197', '108.171.174.178');
+  private $_ips = array();
 
   /**
    * Constructor.
@@ -87,6 +88,10 @@ class GitHubHook
     $this->_debug = TRUE;
   }
 
+  public function addGitHubIPs($ipArr){
+        $this->_ips = array_merge($this->_ips,$ipArr);
+  }
+
   /**
    * Add a branch.
    * @param string $name Branch name, defaults to 'master'.
@@ -95,14 +100,17 @@ class GitHubHook
    * @param array $author Contains authorized users' email addresses, defaults to everyone.
    * @since 1.0
    */
-  public function addBranch($name = 'master', $title = 'development', $path = '/var/www/', $author = array()) {
-    $this->_branches[] = array(
+  public function addBranch($branchArrElem){ //$name = 'master', $title = 'development', $path = '/var/www/', $author = array()){
+    $this->_branches[] = $branchArrElem;
+    
+    /*array(
       'name'   => $name,
       'title'  => $title,
       'path'   => $path,
       'author' => $author
-    );
+    );*/
   }
+
 
   /**
    * Log a message.
@@ -120,16 +128,32 @@ class GitHubHook
    * @since 1.0
    */
   public function deploy() {
+  	$this->log("");
     if (in_array($this->_remoteIp, $this->_ips)) {
       foreach ($this->_branches as $branch) {
-        if ($this->_payload->ref == 'refs/heads/' . $branch['name']) {
-
-          $this->log('Deploying to ' . $branch['title'] . ' server');
-          shell_exec('./deploy.sh ' . $branch['path'] . ' ' . $branch['name']);
-        }
+      	//$this->log($this->_payload->repository->url."==".$branch["gitURL"]);
+      	if($this->_payload->repository->url == $branch["gitURL"]){
+      		$this->log("Beginning deployment...");
+      		$this->log("Deploying ".$this->_payload->repository->url);
+	      	$this->log($this->_payload->ref."==".'refs/heads/' . $branch['branchName']);
+	        if ($this->_payload->ref == 'refs/heads/' . $branch['branchName']) {
+			  //$this->log(print_r($this->_payload,true));
+	          $this->log('Deploying to ' . $branch['branchTitle'] . ' server');
+	          
+			  $dir = getcwd();
+			  chdir($branch['gitFolder']);
+			  //$output = shell_exec('which git');
+	          $output = trim(shell_exec('/usr/bin/git pull origin '.$branch['branchName'].' 2>&1'));
+			  shell_exec('/bin/chmod -R 755 .');
+			  chdir($dir);
+	          $this->log($output);
+			  $this->log("");
+	        }
+		}
       }
     } else {
       $this->_notFound('IP address not recognized: ' . $this->_remoteIp);
     }
   }
 }
+
