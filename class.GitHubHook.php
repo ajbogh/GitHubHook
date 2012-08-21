@@ -128,21 +128,19 @@ class GitHubHook
    * @since 1.0
    */
   public function deploy() {
-  	$this->log("");
     if (in_array($this->_remoteIp, $this->_ips)) {
       foreach ($this->_branches as $branch) {
-      	//$this->log($this->_payload->repository->url."==".$branch["gitURL"]);
-      	if($this->_payload->repository->url == $branch["gitURL"]){
+      	//remove http:// and https:// from the URL. We don't really care about this.
+      	if(preg_replace('/(https?):\/\//', "", $this->_payload->repository->url) == preg_replace('/(https?):\/\//', "", $branch["gitURL"])){
+      		$this->log("");
       		$this->log("Beginning deployment...");
       		$this->log("Deploying ".$this->_payload->repository->url);
 	      	$this->log($this->_payload->ref."==".'refs/heads/' . $branch['branchName']);
 	        if ($this->_payload->ref == 'refs/heads/' . $branch['branchName']) {
-			  //$this->log(print_r($this->_payload,true));
 	          $this->log('Deploying to ' . $branch['branchTitle'] . ' server');
 	          
 			  $dir = getcwd();
 			  chdir($branch['gitFolder']);
-			  //$output = shell_exec('which git');
 	          $output = trim(shell_exec('/usr/bin/git pull origin '.$branch['branchName'].' 2>&1'));
 			  shell_exec('/bin/chmod -R 755 .');
 			  chdir($dir);
