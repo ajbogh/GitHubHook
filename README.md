@@ -17,9 +17,9 @@ Go to your `GitHub repo` &gt; `Admin` &gt; `Service Hooks`, select `Post-Receive
 
 GitHub provides [Post-Receive Hooks](http://help.github.com/post-receive-hooks/) to allow HTTP callback with a HTTP Post. We then create a script for the callback to deploy the systems automatically.
 
-You will need to create branches like `stage` and `prod` in Git before proceeding into the configurations.
+You will need to create branches like `stage` and `prod` in Git before proceeding into the configuration.
 
-You then can have a brief look into `config.inc.php`, a WebHook example provided for you to experience how simple the configurations are.
+Then open `config.inc.php`. An example is provided to illustrate how simple the configurations are.
 
 <pre><code>&lt;?php
 $branches = array(
@@ -66,10 +66,10 @@ Add a .htaccess to prevent unwanted visitors trying to access the .ssh folder.
 
 ### Security
 
-Worry about securities? We have enabled IP check to allow only GitHub hook addresses: `207.97.227.253`, `50.57.128.197`, `108.171.174.178` to deploy the systems. We also return a `404 Not Found` page when there is illegal access to the hook script.
+Worried about security? An IP check is enabled to allow only GitHub hook addresses: `207.97.227.253`, `50.57.128.197`, `108.171.174.178` to deploy the systems. We also return a `404 Not Found` page when there is illegal access to the hook script.
 
 For better security, add an email address to the configuration.
 
 ### For Developers
 
-We are trying to make developers life easier. Kindly fork this on GitHub and submit your pull requests to help us.
+We are trying to make developers' lives easier. Kindly fork this on GitHub and submit your pull requests to help us.
