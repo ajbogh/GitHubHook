@@ -6,7 +6,7 @@ Deploying applications to development, staging and production never been so easy
 
 Clone the script:
 
-<pre><code>$ <strong>git clone https://github.com/kwangchin/GitHubHook.git</strong>
+<pre><code>$ <strong>git clone https://github.com/ajbogh/GitHubHook.git</strong>
 </code></pre>
 
 Go to your `GitHub repo` &gt; `Admin` &gt; `Service Hooks`, select `Post-Receive URLS` and enter your hook URL like this:
@@ -19,32 +19,51 @@ GitHub provides [Post-Receive Hooks](http://help.github.com/post-receive-hooks/)
 
 You will need to create branches like `stage` and `prod` in Git before proceeding into the configurations.
 
-You then can have a brief look into `hook.php`, a WebHook example provided for you to experience how simple the configurations are.
+You then can have a brief look into `config.inc.php`, a WebHook example provided for you to experience how simple the configurations are.
 
 <pre><code>&lt;?php
-require_once('class.GitHubHook.php');
-
-// Initiate the GitHub Deployment Hook
-$hook = new GitHubHook;
-
-// Enable the debug log, kindly make `log/hook.log` writable
-$hook-&gt;enableDebug();
-
-// Adding `stage` branch to deploy for `staging` to path `/var/www/testhook/stage`
-$hook-&gt;addBranch('stage', 'staging', '/var/www/stage');
-
-// Adding `prod` branch to deploy for `production` to path `/var/www/testhook/prod`
-$hook-&gt;addBranch('prod', 'production', '/var/www/prod', array('user@gmail.com'));
-
-// Deploy the commits
-$hook-&gt;deploy();
+$branches = array(
+		array(
+			"branchName"=>"stage" //The branch to deploy. 'stage' branch used on staging server, dev for dev, prod for prod servers.
+			,"branchTitle"=>"staging" //just used in logging
+			,"gitFolder"=>"/var/www/MyWebsite" //the folder for the site that we're deploying
+			,"gitURL"=>"https://github.com/ajbogh/GitHubHook" //the remote URL of the Git project
+			,"allowedEmails"=>array() //optional, or can be blank array
+		),
+		array(
+			"branchName"=>"prod" //The branch to deploy. 'stage' branch used on staging server, dev for dev, prod for prod servers.
+			,"branchTitle"=>"PROD" //just used in logging
+			,"gitFolder"=>"/var/www/MyWebsitePROD" //the folder for the site that we're deploying
+			,"gitURL"=>"https://github.com/ajbogh/GitHubHook" //the remote URL of the Git project
+			,"allowedEmails"=>array("ajbogh@allanbogh.com") //optional, or can be blank array
+		)
+	);
+	
+	$githubIPs = array('207.97.227.253', '50.57.128.197', '108.171.174.178'); //an array of IPs that can run the deployment
+?&gt;
 </code></pre>
 
-In this example, we enabled the debug log for messages with timestamp. You can disable this by commenting or removing the line `$hook->enableDebug()`
+We have a staging site and a production site in this example. You can add more branches easily by adding additional configuration arrays if you have more systems to deploy.
 
-We have a staging site and a production site in this example. You can add more branches easily with `$hook->addBranch()` method if you have more systems to deploy.
+Set the owner of the website's directory to apache:
 
-We then use `$hook->deploy()` to deploy the systems.
+<pre><code>
+$ sudo chown -R apache: /var/www/MyWebsite
+</code></pre>
+
+Create or duplicate the .ssh folder that you use for Apache to use:
+
+<pre><code>
+$ sudo cp -R /root/.ssh /var/www/
+$ sudo chown -R apache: /var/www/.ssh
+</code></pre>
+
+Add a .htaccess to prevent unwanted visitors trying to access the .ssh folder.
+
+/var/www/.htaccess:
+<pre><code>
+RedirectMatch 404 ^/.ssh/.*$
+</code></pre>
 
 ## 
 
@@ -52,7 +71,7 @@ We then use `$hook->deploy()` to deploy the systems.
 
 Worry about securities? We have enabled IP check to allow only GitHub hook addresses: `207.97.227.253`, `50.57.128.197`, `108.171.174.178` to deploy the systems. We also return a `404 Not Found` page when there is illegal access to the hook script.
 
-For better security, try hiding this hook script in deep directories like `http://www.example.com/let/us/play/hide/and/seek/` and/or renaming the `hook.php` file into `a40b6cf7a5.php`.
+For better security, add an email address to the configuration.
 
 ### For Developers
 
