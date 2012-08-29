@@ -47,22 +47,19 @@ We have a staging site and a production site in this example. You can add more b
 
 Set the owner of the website's directory to apache:
 
-<pre><code>
-$ sudo chown -R apache: /var/www/MyWebsite
+<pre><code>$ sudo chown -R apache: /var/www/MyWebsite
 </code></pre>
 
 Create or duplicate the .ssh folder that you use for Apache to use:
 
-<pre><code>
-$ sudo cp -R /root/.ssh /var/www/
+<pre><code>$ sudo cp -R /root/.ssh /var/www/
 $ sudo chown -R apache: /var/www/.ssh
 </code></pre>
 
 Add a .htaccess to prevent unwanted visitors trying to access the .ssh folder.
 
-/var/www/.htaccess:
-<pre><code>
-RedirectMatch 404 ^/.ssh/.*$
+*/var/www/.htaccess:*
+<pre><code>RedirectMatch 404 ^/.ssh/.*$
 </code></pre>
 
 ## 
